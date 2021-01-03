@@ -1,20 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity } from 'react-native';
 
+interface ICourseGoals {
+  key: string;
+  value: string;
+}
 
 export default function App() {
   const [enteredGoal, setEnteredGoal] = useState<string>('');
-  const [courseGoals, setCourseGoals] = useState<string[]>([]);
+  const [courseGoals, setCourseGoals] = useState<ICourseGoals[]>([{
+    key: "",
+    value: "",
+  }]);
 
   const goalInputHandler = (enteredText: string) => {
     setEnteredGoal(enteredText);
-  }
+  };
 
   const addGoalHandler = () => {
-    setCourseGoals(currentGoals => [...courseGoals, enteredGoal])
+    setCourseGoals(courseGoals => [...courseGoals, { key: (Math.random().toString()), value: enteredGoal }]);
+    setEnteredGoal('');
+  };
 
-  }
+  // Working on trying to figure out how to remove a goal prior to watching the next module
+
+  const deleteGoal = (note: ICourseGoals) => {
+    setCourseGoals(courseGoals => {
+      return courseGoals.filter((goal) => goal.key !== note.key);
+    });
+  };
+
   return (
     <View style={styles.screen}>
       <View style={styles.inputContainer}>
@@ -26,12 +42,16 @@ export default function App() {
         />
         <Button title="ADD" onPress={addGoalHandler} />
       </View>
-      <View>
-        {courseGoals.map((goal, index) => <View key={index} style={styles.listItem}><Text>{goal}</Text></View>)}
-      </View>
+      <FlatList data={courseGoals} renderItem={(itemData) => (
+        <TouchableOpacity onPress={() => deleteGoal(itemData.item)}>
+          <View style={styles.listItem}>
+            <Text>{itemData.item.value}</Text>
+          </View>
+        </TouchableOpacity>
+      )} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   screen: {
